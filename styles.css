@@ -469,7 +469,7 @@ h2 {
 
 .split-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
   gap: 16px;
 }
 
@@ -569,6 +569,7 @@ th {
   align-self: start;
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .total-box {
@@ -936,6 +937,36 @@ dialog::backdrop {
 
   .checkout {
     grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1180px) {
+  #ventas .split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  #ventas .checkout {
+    grid-column: 1 / -1;
+  }
+
+  #ventas .checkout {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(220px, 1fr);
+    align-items: end;
+  }
+
+  #ventas .checkout h2,
+  #ventas .checkout .small-note,
+  #ventas .checkout .credit-fields,
+  #ventas .checkout .success-button {
+    grid-column: 1 / -1;
+  }
+
+  #ventas .total-box {
+    font-size: 30px;
+    min-height: 70px;
+    display: grid;
+    align-items: center;
   }
 }
 
