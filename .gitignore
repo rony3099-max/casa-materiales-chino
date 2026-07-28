@@ -1,0 +1,19 @@
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Dependencias
+node_modules/
+
+# Temporales
+*.log
+*.tmp
+.env
+.env.*
+
+# Builds y caches
+dist/
+build/
+.cache/
+.netlify/
+.vercel/

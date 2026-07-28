@@ -1,0 +1,33 @@
+﻿SUBE ESTOS ARCHIVOS A GITHUB
+
+IMPORTANTE:
+1. Entra a tu repositorio en GitHub.
+2. Borra los archivos que subiste antes, o crea un repositorio nuevo limpio.
+3. Presiona Add file > Upload files.
+4. Abre esta carpeta:
+
+D:\Documentos\New project\GITHUB-SUBIR-ESTA-CARPETA-CASA-MATERIALES-EL-CHINO
+
+5. Selecciona TODO lo que está DENTRO de esta carpeta con Ctrl + A.
+6. Arrastra todo a GitHub.
+7. Presiona Commit changes.
+
+NO subas la carpeta completa como una carpeta dentro del repositorio.
+Debes subir el CONTENIDO.
+
+En GitHub debe quedar así:
+
+index.html
+app.js
+styles.css
+manifest.json
+pwa.js
+service-worker.js
+assets/logo-el-chino.png
+assets/logo-el-chino-wall.jpeg
+prueba-imagen.html
+
+Para revisar imagen:
+https://rony3099-max.github.io/casa-materiales-chino/prueba-imagen.html
+
+Si en esa página no aparece el logo, entonces la carpeta assets no se subió bien.

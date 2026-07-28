@@ -1,0 +1,446 @@
+﻿<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102638" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="El Chino POS" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Casa de Materiales El Chino | Punto de venta</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/logo-el-chino.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <section class="login-screen" id="login-screen">
+      <div class="login-card">
+        <img class="login-logo" src="assets/logo-el-chino.png" alt="Logo Casa de Materiales El Chino" />
+        <p class="eyebrow">Punto de venta</p>
+        <h1>Casa de Materiales El Chino</h1>
+        <form id="login-form" class="login-form">
+          <label>Correo <input id="login-user" type="email" autocomplete="username" required /></label>
+          <label>Contraseña <input id="login-password" type="password" autocomplete="current-password" required /></label>
+          <button class="primary-button" type="submit">Entrar</button>
+        </form>
+        <p class="login-help">Ingresa con tu usuario asignado.</p>
+      </div>
+    </section>
+
+    <div class="app-shell hidden" id="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="assets/logo-el-chino.png" alt="Logo Casa de Materiales El Chino" />
+          <div>
+            <strong>Casa de Materiales</strong>
+            <span>El Chino</span>
+          </div>
+        </div>
+        <div class="sidebar-actions">
+          <button class="side-action side-sale" data-view="ventas">Nueva venta</button>
+          <button class="side-action side-credit" data-view="fiado">Fiado</button>
+        </div>
+        <nav class="nav" aria-label="Modulos principales">
+          <button class="nav-link active" data-view="dashboard" data-admin-only="true">Inicio</button>
+          <button class="nav-link" data-view="ventas">Ventas</button>
+          <button class="nav-link" data-view="inventario" data-admin-only="true">Inventario</button>
+          <button class="nav-link" data-view="fiado">Fiado</button>
+          <button class="nav-link" data-view="historial">Historial</button>
+          <button class="nav-link" data-view="corte" data-admin-only="true">Corte de caja</button>
+          <button class="nav-link" data-view="reportes" data-admin-only="true">Reportes</button>
+        </nav>
+        <div class="user-panel">
+          <span id="current-user-label">Usuario</span>
+          <button class="secondary-button" id="logout-button" type="button">Cerrar sesión</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="topbar-title">
+            <img class="topbar-logo" src="assets/logo-el-chino.png" alt="Logo Casa de Materiales El Chino" />
+            <div>
+            <p class="eyebrow">Punto de venta</p>
+            <h1>Casa de Materiales El Chino</h1>
+            </div>
+          </div>
+          <div class="today-pill" id="today-pill"></div>
+        </header>
+
+        <section class="view active" id="dashboard">
+          <section class="hero-actions">
+            <div class="hero-copy">
+              <img class="hero-logo" src="assets/logo-el-chino.png" alt="Logo Casa de Materiales El Chino" />
+              <div>
+                <p class="eyebrow">Atención rápida de mostrador</p>
+                <h2>¿Qué vas a registrar?</h2>
+              </div>
+            </div>
+            <div class="big-action-grid">
+              <button class="big-action sale-action" data-view="ventas">
+                <span>Nueva venta</span>
+                <strong>Cobrar y generar ticket</strong>
+              </button>
+              <button class="big-action credit-action" data-view="fiado">
+                <span>Fiado</span>
+                <strong>Registrar o cobrar deuda</strong>
+              </button>
+            </div>
+          </section>
+
+          <div class="quick-grid">
+            <article class="metric paid">
+              <span>Total efectivo hoy</span>
+              <strong id="dash-cash">$0.00</strong>
+            </article>
+            <article class="metric">
+              <span>Ventas realizadas</span>
+              <strong id="dash-sales">0</strong>
+            </article>
+            <article class="metric warning">
+              <span>Pendiente por fiado</span>
+              <strong id="dash-credit">$0.00</strong>
+            </article>
+            <article class="metric">
+              <span>Productos con poca existencia</span>
+              <strong id="dash-low-stock">0</strong>
+            </article>
+          </div>
+
+          <div class="module-grid">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Accesos rápidos</h2>
+              </div>
+              <div class="shortcut-grid">
+                <button class="shortcut featured" data-view="ventas">Nueva venta</button>
+                <button class="shortcut featured credit" data-view="fiado">Fiado</button>
+                <button class="shortcut" data-view="inventario" data-admin-only="true">Inventario</button>
+                <button class="shortcut" data-view="historial">Historial</button>
+                <button class="shortcut" data-view="reportes" data-admin-only="true">Reportes</button>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Productos más vendidos</h2>
+              </div>
+              <div id="top-products" class="rank-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="ventas">
+          <div class="split-layout">
+            <section class="panel sale-builder">
+              <div class="panel-header">
+                <h2>Nueva venta</h2>
+                <span class="badge">Descuenta inventario al finalizar</span>
+              </div>
+              <form id="sale-item-form" class="form-grid">
+                <label>
+                  Producto
+                  <input id="sale-product-search" list="product-options" placeholder="Buscar material" autocomplete="off" required />
+                </label>
+                <label>
+                  Precio
+                  <input id="sale-price" type="number" min="0" step="0.01" readonly />
+                </label>
+                <label>
+                  Cantidad
+                  <input id="sale-qty" type="number" min="0.01" step="0.01" value="1" required />
+                </label>
+                <button class="primary-button" type="submit">Agregar producto</button>
+              </form>
+              <datalist id="product-options"></datalist>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cant.</th>
+                      <th>Precio</th>
+                      <th>Subtotal</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="sale-cart"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <aside class="panel checkout">
+              <h2>Total de compra</h2>
+              <div class="total-box" id="sale-total">$0.00</div>
+              <label>
+                Método de pago
+                <select id="payment-method">
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Fiado">Fiado</option>
+                </select>
+              </label>
+              <div id="credit-fields" class="credit-fields hidden">
+                <label>Nombre del cliente <input id="credit-customer" placeholder="Persona que queda a deber" /></label>
+                <label>Teléfono opcional <input id="credit-phone" placeholder="Teléfono" /></label>
+                <label>Observaciones <textarea id="credit-notes" rows="3"></textarea></label>
+              </div>
+              <button class="success-button" id="finish-sale">Finalizar venta</button>
+              <p class="small-note">Las ventas fiadas quedan fuera del corte hasta que se marquen como pagadas.</p>
+            </aside>
+          </div>
+
+          <section class="panel ticket-panel hidden" id="ticket-panel">
+            <div class="panel-header">
+              <h2>Ticket generado</h2>
+              <div class="button-row">
+                <button class="secondary-button" id="print-ticket">Imprimir</button>
+                <button class="secondary-button" id="download-ticket">Descargar</button>
+              </div>
+            </div>
+            <div id="note-output" class="sales-note"></div>
+            <pre id="ticket-output" class="ticket"></pre>
+          </section>
+        </section>
+
+        <section class="view" id="inventario">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Inventario</h2>
+              <input id="inventory-search" class="search-input" placeholder="Buscar por código, material o categoría" />
+            </div>
+            <form id="product-form" class="form-grid product-form">
+              <input type="hidden" id="product-id" />
+              <label>Código <input id="product-code" required /></label>
+              <label>Material <input id="product-name" required /></label>
+              <label>Categoría <input id="product-category" required /></label>
+              <label>Precio venta <input id="product-price" type="number" min="0" step="0.01" required /></label>
+              <label>Existencia <input id="product-stock" type="number" min="0" step="0.01" required /></label>
+              <label>
+                Unidad
+                <select id="product-unit">
+                  <option>pieza</option>
+                  <option>bulto</option>
+                  <option>metro</option>
+                  <option>kilo</option>
+                  <option>tonelada</option>
+                  <option>litro</option>
+                  <option>caja</option>
+                  <option>varilla</option>
+                </select>
+              </label>
+              <button class="primary-button" type="submit">Guardar producto</button>
+              <button class="secondary-button" type="button" id="clear-product-form">Limpiar</button>
+            </form>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Material</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Existencia</th>
+                    <th>Unidad</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="fiado">
+          <div class="quick-grid">
+            <article class="metric warning">
+              <span>Total pendiente por cobrar</span>
+              <strong id="credit-total">$0.00</strong>
+            </article>
+            <article class="metric">
+              <span>Personas con deuda</span>
+              <strong id="credit-people">0</strong>
+            </article>
+          </div>
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Fiados</h2>
+              <input id="credit-search" class="search-input" placeholder="Buscar por cliente, producto o estado" />
+            </div>
+            <form id="manual-credit-form" class="form-grid product-form">
+              <input type="hidden" id="manual-credit-id" />
+              <label>Nombre <input id="manual-credit-name" required /></label>
+              <label>Teléfono <input id="manual-credit-phone" /></label>
+              <label>Fecha <input id="manual-credit-date" type="date" required /></label>
+              <label>Observaciones <input id="manual-credit-notes" /></label>
+              <label>
+                Producto
+                <input id="credit-product-search" list="product-options" placeholder="Buscar material" autocomplete="off" />
+              </label>
+              <label>
+                Precio
+                <input id="credit-price" type="number" min="0" step="0.01" readonly />
+              </label>
+              <label>
+                Cantidad
+                <input id="credit-qty" type="number" min="0.01" step="0.01" value="1" />
+              </label>
+              <button class="secondary-button" type="button" id="add-credit-item">Agregar material</button>
+              <label>
+                Monto adeudado
+                <input id="manual-credit-amount" type="number" min="0" step="0.01" readonly />
+              </label>
+              <input id="manual-credit-items" type="hidden" />
+              <button class="primary-button" type="submit">Guardar fiado</button>
+              <button class="secondary-button" type="button" id="clear-credit-form">Limpiar</button>
+            </form>
+            <div class="table-wrap compact-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="credit-cart"></tbody>
+              </table>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Materiales</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="credit-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="historial">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Historial de ventas</h2>
+              <input id="history-search" class="search-input" placeholder="Buscar por fecha, producto o cliente" />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Pago</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="corte">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Corte de caja</h2>
+              <input id="cut-date" type="date" />
+            </div>
+            <div class="quick-grid">
+              <article class="metric paid">
+                <span>Total pagado del día</span>
+                <strong id="cut-total">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Tickets generados</span>
+                <strong id="cut-tickets">0</strong>
+              </article>
+              <article class="metric">
+                <span>Efectivo</span>
+                <strong id="cut-cash">$0.00</strong>
+              </article>
+              <article class="metric">
+                <span>Tarjeta / transferencia</span>
+                <strong id="cut-other">$0.00</strong>
+              </article>
+            </div>
+            <div id="cut-methods" class="method-list"></div>
+          </section>
+        </section>
+
+        <section class="view" id="reportes">
+          <div class="quick-grid">
+            <article class="metric paid">
+              <span>Ventas últimos 7 días</span>
+              <strong id="report-week">$0.00</strong>
+            </article>
+            <article class="metric">
+              <span>Ventas del mes</span>
+              <strong id="report-month">$0.00</strong>
+            </article>
+            <article class="metric warning">
+              <span>Fiado pendiente</span>
+              <strong id="report-credit">$0.00</strong>
+            </article>
+          </div>
+          <div class="module-grid">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Ventas semanales</h2>
+              </div>
+              <div id="weekly-chart" class="bar-chart"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Ventas mensuales</h2>
+              </div>
+              <div id="monthly-chart" class="bar-chart"></div>
+            </section>
+          </div>
+          <div class="module-grid">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Pagado vs fiado</h2>
+              </div>
+              <div id="paid-credit-chart" class="compare-bars"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Más vendidos</h2>
+              </div>
+              <div id="report-top-products" class="rank-list"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="detail-dialog">
+      <div class="dialog-header">
+        <h2>Detalle del ticket</h2>
+        <button id="close-dialog" class="icon-button" aria-label="Cerrar">×</button>
+      </div>
+      <div id="dialog-note" class="sales-note"></div>
+      <pre id="dialog-ticket" class="ticket"></pre>
+      <div class="button-row">
+        <button class="secondary-button" id="dialog-print">Imprimir</button>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast"></div>
+    <script src="app.js"></script>
+    <script src="pwa.js"></script>
+  </body>
+</html>
+

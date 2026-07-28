@@ -1,0 +1,26 @@
+{
+  "name": "Casa de Materiales El Chino",
+  "short_name": "El Chino POS",
+  "description": "Punto de venta para Casa de Materiales El Chino.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef3f6",
+  "theme_color": "#102638",
+  "lang": "es-MX",
+  "icons": [
+    {
+      "src": "assets/logo-el-chino.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/logo-el-chino.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
